@@ -1,0 +1,79 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+using namespace std;
+
+int n, m, pmin, qmin=INT_MAX;
+vector<pair<int,int> > vec;
+int a[201][201], b[201];
+
+bool check(int g)
+{
+    for (int u = 1; u <= n; u++)
+        if (b[u]>=g-1)
+            vec.push_back({u,0});
+    if (vec.size()<g) return false;
+    for (int u = 0; u < vec.size(); u++)
+    {
+        for (int v = 0; v < vec.size(); v++)
+            if (a[vec[u].first][vec[v].first])
+                vec[u].second++;
+        if (vec[u].second<qmin)
+        {
+            qmin=vec[u].second;
+            pmin=u;
+        }
+    }
+    while (qmin<vec.size()-1)
+    {
+        if (vec.size()<g) return false;
+        vec.erase(vec.begin()+pmin);
+        qmin = INT_MAX, pmin = 0;
+        for (int u = 0; u < vec.size(); u++)
+        {
+            vec[u].second=0;
+            for (int v = 0; v < vec.size(); v++)
+                if (a[vec[u].first][vec[v].first])
+                {
+                    vec[u].second++;
+                    if (vec[u].second>qmin)
+                    {
+                        qmin=vec[u].second;
+                        pmin=u;
+                    }
+                }
+        }
+    }
+    return true;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    freopen("CLIQUE.inp","r",stdin);
+    freopen("CLIQUE.out","w",stdout);
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        a[u][v]=a[v][u]=1;
+        b[u]++;
+        b[v]++;
+    }
+    int i = 1, j = n, r = 0;
+    while (i <= j)
+    {
+        int g = (i+j)/2;
+        if (check(g))
+        {
+            r=g;
+            i=g+1;
+        }
+        else j=g-1;
+        vec.clear();
+    }
+    cout << r;
+    return 0;
+}
