@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#define INTMAX 1000000001
+using namespace std;
+
+int n, m;
+vector<vector<int> > vec(1001);
+long long f[1001][1001];
+
+int findtv(int a, int b)
+{
+    int sizea = vec[a].size(), sizeb = vec[b].size(), u = 0, v = 0, i = 0, j = sizea;
+    while (i <= j)
+    {
+        int u = (i+j)/2, v = (sizea+sizeb+1)/2-u;
+        if (u < sizea && v > 0 && vec[b][v-1] > vec[a][u]) i=u+1;
+        else if (u > 0 && v < sizeb && vec[b][v] < vec[a][u-1]) j=u-1;
+        else
+        {
+            if ((sizea + sizeb)%2==0)
+                return max((u>0)?(vec[a][u-1]):0,(v>0)?(vec[b][v-1]):0)+min((u<sizea)?(vec[a][u]):INTMAX,(v<sizeb)?(vec[b][v]):INTMAX);
+            else
+                return max((u>0)?(vec[a][u-1]):0,(v>0)?(vec[b][v-1]):0)*2;
+        }
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    freopen("MEDIAN.inp","r",stdin);
+    freopen("MEDIAN.out","w",stdout);
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)
+    {
+        int r;
+        cin >> r;
+        for (int j = 1; j <= r; j++)
+        {
+            int x;
+            cin >> x;
+            vec[i].push_back(x);
+        }
+    }
+    for (int i = 1; i <= n-1; i++)
+        for (int j = i+1; j <= n; j++)
+            f[i][j]=f[j][i]=findtv(i,j);
+    for (int i = 1; i <= m; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        cout << f[u][v] << endl;
+    }
+    return 0;
+}
