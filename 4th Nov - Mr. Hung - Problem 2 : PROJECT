@@ -1,0 +1,113 @@
+Problem: 
+352. LÁT ĐƯỜNG
+Ở đất nước nọ có 𝑛 thành phố đánh số từ 1 tới 𝑛 và 𝑚 con đường đất nối chúng với nhau đánh số từ 1
+tới 𝑚. Con đường thứ 𝑖 từ thành phố 𝑢𝑖 tới thành phố 𝑣𝑖 và cho phép đi lại giữa hai thành phố đó theo cả
+hai chiều. Hạ tầng giao thông cần được nâng cấp nhưng do ngân sách nhà nước còn eo hẹp, nhà vua muốn
+chọn ra 𝑛 − 1 con đường để lát đá sao cho với hai thành phố bất kỳ luôn tồn tại một tuyến đường qua
+các con đường lát đá nối chúng với nhau và giá trung bình 1 km đường là rẻ nhất. 
+Biết rằng con đường thứ 𝑖 có độ dài 𝑙𝑖 km và để lát đá con đường đó tốn chi phí là 𝑐𝑖.
+Hệ thống các con đường đảm bảo sự đi lại giữa hai thành phố bất kỳ. 
+Giá trung bình của 1 km đường trong một phương án lát đá được tính bằng:
+Tổng chi phí lát đá các con đường trong phương án / Tổng độ dài các con đường được lát đá trong phương án
+Yêu cầu:. Hãy xác định phương án tối ưu để lát đá các con đường theo yêu cầu của nhà vua.
+Dữ liệu: Vào từ file văn bản PROJECT.INP
+⚫ Dòng 1: Chứa hai số nguyên dương 𝑛, 𝑚 ≤ 104
+⚫ 𝑚 dòng tiếp theo, dòng thứ 𝑖 chứa 4 số nguyên dương 𝑢𝑖, 𝑣𝑖, 𝑙𝑖, 𝑐𝑖 (1 ≤ 𝑙𝑖, 𝑐𝑖 ≤ 10^5)
+Kết quả: Ghi ra file văn bản PROJECT.OUT 𝑛 − 1 số nguyên trên một dòng là số hiệu các con đường trong
+phương án tối ưu tìm được
+
+MY SOLUTION: MINIMUM RATIO SPANNING TREE
+
+Code:
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstdio>
+using namespace std;
+
+struct KDL
+{
+    int x, y, u, v, p;
+};
+
+int n, m, x, y, j, dd[10005];
+vector<KDL> v;
+pair<int,int> djs[10001];
+
+bool cmp(KDL a, KDL b)
+{
+    return y*a.v-x*a.u < y*b.v-x*b.u;
+}
+
+int fset(int x)
+{
+    if (djs[x].first!=x) return (djs[x].first=fset(djs[x].first));
+    return x;
+}
+
+void gopcay(int a, int b)
+{
+    if (djs[a].second>djs[b].second)
+        djs[b].first=a;
+    if (djs[a].second<djs[b].second)
+        djs[a].first=b;
+    if (djs[a].second==djs[b].second)
+    {
+        djs[a].first=b;
+        djs[b].second++;
+    }
+}
+
+void findspanningtree()
+{
+    sort(v.begin(),v.end(),cmp);
+    x=y=0;
+    for (int i = 1; i <= n; i++)
+    {
+        djs[i].first=i;
+        djs[i].second=1;
+    }
+    int d = 0;
+    j=0;
+    for (int i = 0; i < v.size(); i++)
+    {
+        int dinh1 = fset(v[i].x), dinh2=fset(v[i].y);
+        if (dinh1!=dinh2)
+        {
+            d++;
+            x+=v[i].v;
+            y+=v[i].u;
+            dd[++j]=v[i].p;
+            gopcay(dinh1,dinh2);
+        }
+        if (d==n-1) break;
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+    freopen("PROJECT.inp","r",stdin);
+    freopen("PROJECT.out","w",stdout);
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int u, vs, l, c;
+        cin >> u >> vs >> l >> c;
+        v.push_back({u,vs,l,c,i});
+    }
+    x = 0, y=1;
+    int tx = -1, ty=-1;
+    while (x*ty!=y*tx)
+    {
+        tx=x;
+        ty=y;
+        findspanningtree();
+    }
+    for (int i = 1; i <= j; i++)
+    {
+        cout << dd[i] << " ";
+    }
+    return 0;
+}
